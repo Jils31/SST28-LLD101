@@ -1,17 +1,24 @@
 According to Readme.md file it is clearly mentioned that this code is violating the LSP principle, and how it is violating
-is the parent which is the Exporter class, always expects the Export Result from it's child class.
+is the parent which is the Exporter class, always expects an export result from it's child classes.
 
-Now the children: PdfExporter, CsvExporter, JsonExporter each of them are behaving differently and thus breaking the LSP principle.
-For the PdfExporter it checks the condition of the length and throw exception which is not expected by the parent class,
-similarly for the CsvExporter: it is converting the data, or simple losing the meaning of the data, thus it is not reliable as it is 
-changing the whole meaning,
-for example:
-if the input is Hello, World! then  the output is Hello World!, missed the comma
+Thus we have to change the Child exporters by defining a contract or rules which we can say and we have to apply those rules
+to each and every child classes.
 
-Similalry for the JsonExporter, if the req is null then that function is silently crashing, which is again not expected by the parent class.
+Defined all the precondition and postcondition in the base class which is Exporter.
+They are like the request must not be null, the title or body can be null (this is the assumption) and the postconditions are
+result must always be returned in the form of ExportResult, no child class should throw this exceptions, and also the data should
+be meaningful.
 
-Thus changing each of them by defining what we actually want in the parent class and implementing in that way in the child class.
+Now the changes that have been done in this structure:
+1. Exporter: this is the base class so defined some rules that should be followed and also removed the null handling from one of 
+it's child class which is JsonExporter and defined that in this base class, thus the req are handled at the base level.
 
-1. Pdfexporter :  removed the precondition check of the length
-2. CsvExporter: instead of removing the characters escaping them, thus the meaning remains as it is.
-3. JsonExporter: instead of crashing(returning empty json output), it is returning the default condition.
+2. ExportResult: error and a boolean success is added in this class, so to maintain the condition of the length and all the things,
+rather than throwing exception just use this new ExportResult(error) constructor that we defined in this class.
+
+3. PdfExporter: rather than throwing the exception we will now return the new ExportResult(error), thus the condition of LSP
+is satisfied as the base class is getting the ExportResult only.
+
+4. CsvExporter: instead of removing the characters, we have handled them correctly, using the escape method.
+5. JsonExporter: rather then crashing when the req is null, we have moved this to the null check to the base level,
+thus this class is only responsible for the exporting in JSON format.

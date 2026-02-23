@@ -3,16 +3,19 @@ import java.nio.charset.StandardCharsets;
 public class JsonExporter extends Exporter {
     @Override
     public ExportResult export(ExportRequest req) {
-        // inconsistent handling (surprise)
-        if (req == null){
-            req = new ExportRequest("", "");
-        }
-        String json = "{\"title\":\"" + escape(req.title) + "\",\"body\":\"" + escape(req.body) + "\"}";
-        return new ExportResult("application/json", json.getBytes(StandardCharsets.UTF_8));
+        String title = req.title == null ? "" : req.title;
+        String body = req.body == null ? "" : req.body;
+
+        String safeTitle = escapeJson(title);
+        String safeBody = escapeJson(body);
+
+        String json = "{\"title\":\"" + safeTitle + "\",\"body\":\"" + safeBody + "\"}";
+        return new ExportResult("application/json", json.getBytes());
     }
 
-    private String escape(String s) {
-        if (s == null) return "";
-        return s.replace("\"", "\\\"");
+    private String escapeJson(String value) {
+        return value.replace("\\", "\\\\")
+                    .replace("\"", "\\\"")
+                    .replace("\n", "\\n");
     }
 }
