@@ -10,7 +10,7 @@ public class JsonExporter extends Exporter {
         String safeBody = escapeJson(body);
 
         String json = "{\"title\":\"" + safeTitle + "\",\"body\":\"" + safeBody + "\"}";
-        return new ExportResult("application/json", json.getBytes());
+        return new ExportResult("application/json", json.getBytes(StandardCharsets.UTF_8));
     }
 
     private String escapeJson(String value) {
